@@ -33,7 +33,7 @@ int main(int argc,char *argv[])
 
 	if((fd=open("/tmp/server",O_WRONLY))<0)
 		error_sys("stat open fifo failed");
-
+	printf("%d\n", fd);
 	if(write(fd,&statcmd,DATALEN)<0)
 		error_sys("stat write failed");
 

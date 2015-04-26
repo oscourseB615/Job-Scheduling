@@ -59,6 +59,7 @@ void scheduler()
 	jobswitch();
 }
 
+	/* 分配作业ID*/
 int allocjid()
 {
 	return ++jobid;
@@ -167,24 +168,24 @@ void sig_handler(int sig,siginfo_t *info,void *notused)
 	int ret;
 
 	switch (sig) {
-case SIGVTALRM: /* 到达计时器所设置的计时间隔 */
-	scheduler();
-	return;
-case SIGCHLD: /* 子进程结束时传送给父进程的信号 */
-	ret = waitpid(-1,&status,WNOHANG);
-	if (ret == 0)
-		return;
-	if(WIFEXITED(status)){
-		current->job->state = DONE;
-		printf("normal termation, exit status = %d\n",WEXITSTATUS(status));
-	}else if (WIFSIGNALED(status)){
-		printf("abnormal termation, signal number = %d\n",WTERMSIG(status));
-	}else if (WIFSTOPPED(status)){
-		printf("child stopped, signal number = %d\n",WSTOPSIG(status));
-	}
-	return;
-	default:
-		return;
+		case SIGVTALRM: /* 到达计时器所设置的计时间隔 */
+			scheduler();
+			return;
+		case SIGCHLD: /* 子进程结束时传送给父进程的信号 */
+			ret = waitpid(-1,&status,WNOHANG);
+			if (ret == 0)
+				return;
+			if(WIFEXITED(status)){
+				current->job->state = DONE;
+				printf("normal termation, exit status = %d\n",WEXITSTATUS(status));
+			}else if (WIFSIGNALED(status)){
+				printf("abnormal termation, signal number = %d\n",WTERMSIG(status));
+			}else if (WIFSTOPPED(status)){
+				printf("child stopped, signal number = %d\n",WSTOPSIG(status));
+			}
+			return;
+		default:
+			return;
 	}
 }
 
@@ -370,6 +371,10 @@ int main()
 	struct itimerval new,old;
 	struct stat statbuf;
 	struct sigaction newact,oldact1,oldact2;
+
+	#ifdef DEBUG
+		printf("DEBUG IS OPEN!\n");
+	#endif
 
 	if(stat("/tmp/server",&statbuf)==0){
 		/* 如果FIFO文件存在,删掉 */
