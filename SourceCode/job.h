@@ -16,7 +16,6 @@
 
 #define BUFLEN 100
 #define GLOBALFILE "screendump"
-#define DEBUG
 
 enum jobstate{
     READY,RUNNING,DONE
