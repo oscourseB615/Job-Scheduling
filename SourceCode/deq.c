@@ -5,6 +5,7 @@
 #include <sys/ipc.h>
 #include <fcntl.h>
 #include "job.h"
+#define DEBUG
 
 /* 
  * √¸¡Ó”Ô∑®∏Ò Ω
@@ -31,7 +32,12 @@ int main(int argc,char *argv[])
 	deqcmd.defpri=0;
 	deqcmd.owner=getuid();
 	deqcmd.argnum=1;
+#ifdef DEBUG
+		printf("deqcmd cmdtype\t%d(-1 means ENQ, -2 means DEQ, -3 means STAT)\n"
+			"deqcmd owner\t%d\n",
+			deqcmd.type,deqcmd.owner);
 
+#endif 
 	strcpy(deqcmd.data,*++argv);
 	printf("jid %s\n",deqcmd.data);
 
