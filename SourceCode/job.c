@@ -10,6 +10,8 @@
 #include <time.h>
 #include "job.h"
 
+#define DEBUG
+
 int jobid=0;
 int siginfo=1;
 int fifo;
@@ -43,7 +45,7 @@ void scheduler()
 		printf("Update jobs in wait queue!\n");
 	#endif
 
-	updateall();
+	updateall(cmd);
 	switch(cmd.type){
 	case ENQ:
 
@@ -92,8 +94,13 @@ int allocjid()
 	return ++jobid;
 }
 
-void updateall()
+void updateall(struct jobcmd cmd)
 {
+	#ifdef DEBUG
+		printf("Updateall starts\n");
+		do_stat(cmd);
+	#endif
+
 	struct waitqueue *p;
 
 	/* 更新作业运行时间 */
@@ -108,6 +115,11 @@ void updateall()
 			p->job->wait_time = 0;
 		}
 	}
+
+	#ifdef DEBUG
+		printf("Updateall finished\n");
+		do_stat(cmd);
+	#endif
 }
 
 struct waitqueue* jobselect()
