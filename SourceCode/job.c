@@ -270,8 +270,31 @@ void sig_handler(int sig,siginfo_t *info,void *notused)
 			}else if (WIFSTOPPED(status)){
 				printf("child stopped, signal number = %d\n",WSTOPSIG(status));
 			}
-			printf("After child teminated\n");
-			do_stat(tmpcmd);
+			#ifdef DEBUG
+				struct waitqueue *p = NULL;
+				printf("After child teminated\n");
+				printf("JOBID\tPID\tOWNER\tRUNTIME\tWAITTIME\tSTATE\n");
+				if(current){
+					printf("%d\t%d\t%d\t%d\t%d\t\t%s\n",
+						current->job->jid,
+						current->job->pid,
+						current->job->ownerid,
+						current->job->run_time,
+						current->job->wait_time,
+						(current->job->state == 0) ? "RUNNING":
+						(current->job->state == 1)?"READY":"DONE");
+				}
+
+				for(p=head;p!=NULL;p=p->next){
+					printf("%d\t%d\t%d\t%d\t%d\t\t%s\n",
+						p->job->jid,
+						p->job->pid,
+						p->job->ownerid,
+						p->job->run_time,
+						p->job->wait_time,
+						"READY");
+				}
+			#endif
 			return;
 		default:
 			return;
