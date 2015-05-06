@@ -16,6 +16,7 @@ int jobid=0;
 int siginfo=1;
 int fifo;
 int globalfd;
+int flag = 1;  				//标识第一个程序
 
 struct waitqueue *head=NULL;
 struct waitqueue *next=NULL,*current =NULL;
@@ -240,7 +241,11 @@ void jobswitch()
 		current->job->wait_time = 0;
 		kill(current->job->pid,SIGCONT);
 		return;
-	}else{ /* next == NULL且current != NULL，不切换 */
+	}else{ /* next == NULL且current != NULL，不切换 */   //bug，第一个程序不显示运行
+		if (flag){
+			kill(current->job->pid,SIGCONT);
+			flag--;
+		}
 		return;
 	}
 }
@@ -365,7 +370,7 @@ void do_enq(struct jobinfo *newjob,struct jobcmd enqcmd)
 	if(pid==0){
 		newjob->pid =getpid();
 		/*阻塞子进程,等等执行*/
-		raise(SIGSTOP);
+		raise(SIGSTOP);	//raise向当前的进程发送信号，SIGSTOP为停止/阻塞
 	#ifdef DEBUG
 
 			printf("begin running\n");
