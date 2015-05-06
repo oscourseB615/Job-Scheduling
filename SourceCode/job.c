@@ -16,12 +16,12 @@ int jobid=0;
 int siginfo=1;
 int fifo;
 int globalfd;
-int flag = 1;  				//±êÊ¶µÚÒ»¸ö³ÌĞò
+int flag = 1;  				//æ ‡è¯†ç¬¬ä¸€ä¸ªç¨‹åº
 
 struct waitqueue *head=NULL;
 struct waitqueue *next=NULL,*current =NULL;
 
-/* µ÷¶È³ÌĞò */
+/* è°ƒåº¦ç¨‹åº */
 void scheduler()
 {
 	struct jobinfo *newjob=NULL;
@@ -32,7 +32,7 @@ void scheduler()
 	if((count=read(fifo,&cmd,DATALEN))<0)
 		error_sys("read fifo failed");
 
-	/*¶ÁÈ¡ÆäËû½ø³Ì·¢À´µÄĞÅÏ¢*/
+	/*è¯»å–å…¶ä»–è¿›ç¨‹å‘æ¥çš„ä¿¡æ¯*/
 	#ifdef DEBUG
 		printf("Reading whether other process send command!\n");
 		if(count){
@@ -42,7 +42,7 @@ void scheduler()
 			printf("no data read\n");
 	#endif
 
-	/* ¸üĞÂµÈ´ı¶ÓÁĞÖĞµÄ×÷Òµ */
+	/* æ›´æ–°ç­‰å¾…é˜Ÿåˆ—ä¸­çš„ä½œä¸š */
 	#ifdef DEBUG
 		printf("Update jobs in wait queue!\n");
 	#endif
@@ -50,7 +50,7 @@ void scheduler()
 
 	switch(cmd.type){
 	case ENQ:
-		/*Ö´ĞĞENQ*/
+		/*æ‰§è¡ŒENQ*/
 		#ifdef DEBUG
 			printf("Execute enq!\n");
 		#endif
@@ -58,7 +58,7 @@ void scheduler()
 		do_enq(newjob,cmd);
 		break;
 	case DEQ:
-		/*Ö´ĞĞDEQ*/
+		/*æ‰§è¡ŒDEQ*/
 		#ifdef DEBUG
 			printf("Execute deq!\n");
 		#endif
@@ -66,7 +66,7 @@ void scheduler()
 		do_deq(cmd);
 		break;
 	case STAT:
-		/*Ö´ĞĞSTAT*/
+		/*æ‰§è¡ŒSTAT*/
 		#ifdef DEBUG
 			printf("Execute stat!\n");
 		#endif
@@ -77,13 +77,13 @@ void scheduler()
 		break;
 	}
 
-	/* Ñ¡Ôñ¸ßÓÅÏÈ¼¶×÷Òµ */
+	/* é€‰æ‹©é«˜ä¼˜å…ˆçº§ä½œä¸š */
 	#ifdef DEBUG
 		printf("Select which job to run next!\n");
 	#endif
 	next=jobselect();
 
-	/*´òÓ¡Ö´ĞĞjobselectÑ¡ÔñµÄ½ø³ÌµÄĞÅÏ¢´òÓ¡*/
+	/*æ‰“å°æ‰§è¡Œjobselecté€‰æ‹©çš„è¿›ç¨‹çš„ä¿¡æ¯æ‰“å°*/
 	#ifdef DEBUG
 		if (next){
 			printf("JOBID\tPID\tOWNER\tRUNTIME\tWAITTIME\tSTATE\n");
@@ -99,11 +99,11 @@ void scheduler()
 			printf("Next is NULL\n");
 		}
 	#endif
-	/* ×÷ÒµÇĞ»» */
+	/* ä½œä¸šåˆ‡æ¢ */
 	#ifdef DEBUG
 		printf("Switch to the next job!\n");
 	#endif
-	/*×÷ÒµÇĞ»»Ç°ĞÅÏ¢´òÓ¡*/
+	/*ä½œä¸šåˆ‡æ¢å‰ä¿¡æ¯æ‰“å°*/
 	#ifdef DEBUG
 		if(current)
 			strcpy(timebuf,ctime(&(current->job->create_time)));
@@ -122,14 +122,14 @@ void scheduler()
 		}
 	#endif
 	jobswitch();
-	/*×÷ÒµÇĞ»»ºó×÷ÒµĞÅÏ¢´òÓ¡*/
+	/*ä½œä¸šåˆ‡æ¢åä½œä¸šä¿¡æ¯æ‰“å°*/
 	#ifdef DEBUG
 		printf("/---------- After jobswitching ----------/\n");
 		do_stat(cmd);
 	#endif
 }
 
-/* ·ÖÅä×÷ÒµID*/
+/* åˆ†é…ä½œä¸šID*/
 int allocjid()
 {
 
@@ -145,11 +145,11 @@ void updateall()
 		do_stat(tmpcmd);
 	#endif
 
-	/* ¸üĞÂ×÷ÒµÔËĞĞÊ±¼ä */
+	/* æ›´æ–°ä½œä¸šè¿è¡Œæ—¶é—´ */
 	if(current)
-		current->job->run_time += 1; /* ¼Ó1´ú±í1000ms */
+		current->job->run_time += 1; /* åŠ 1ä»£è¡¨1000ms */
 
-	/* ¸üĞÂ×÷ÒµµÈ´ıÊ±¼ä¼°ÓÅÏÈ¼¶ */
+	/* æ›´æ–°ä½œä¸šç­‰å¾…æ—¶é—´åŠä¼˜å…ˆçº§ */
 	for(p = head; p != NULL; p = p->next){
 		p->job->wait_time += 1000;
 		if(p->job->wait_time >= 5000 && p->job->curpri < 3){
@@ -172,7 +172,7 @@ struct waitqueue* jobselect()
 	select = NULL;
 	selectprev = NULL;
 	if(head){
-		/* ±éÀúµÈ´ı¶ÓÁĞÖĞµÄ×÷Òµ£¬ÕÒµ½ÓÅÏÈ¼¶×î¸ßµÄ×÷Òµ */
+		/* éå†ç­‰å¾…é˜Ÿåˆ—ä¸­çš„ä½œä¸šï¼Œæ‰¾åˆ°ä¼˜å…ˆçº§æœ€é«˜çš„ä½œä¸š */
 		for(prev = head, p = head; p != NULL; prev = p,p = p->next)
 			if(p->job->curpri > highest){
 				select = p;
@@ -194,13 +194,13 @@ void jobswitch()
 	struct waitqueue *p;
 	int i;
 
-	if(current && current->job->state == DONE){ /* µ±Ç°×÷ÒµÍê³É */
-		/* ×÷ÒµÍê³É£¬É¾³ıËü */
+	if(current && current->job->state == DONE){ /* å½“å‰ä½œä¸šå®Œæˆ */
+		/* ä½œä¸šå®Œæˆï¼Œåˆ é™¤å®ƒ */
 		for(i = 0;(current->job->cmdarg)[i] != NULL; i++){
 			free((current->job->cmdarg)[i]);
 			(current->job->cmdarg)[i] = NULL;
 		}
-		/* ÊÍ·Å¿Õ¼ä */
+		/* é‡Šæ”¾ç©ºé—´ */
 		free(current->job->cmdarg);
 		free(current->job);
 		free(current);
@@ -208,9 +208,9 @@ void jobswitch()
 		current = NULL;
 	}
 
-	if(next == NULL && current == NULL) /* Ã»ÓĞ×÷ÒµÒªÔËĞĞ */
+	if(next == NULL && current == NULL) /* æ²¡æœ‰ä½œä¸šè¦è¿è¡Œ */
 		return;
-	else if (next != NULL && current == NULL){ /* ¿ªÊ¼ĞÂµÄ×÷Òµ */
+	else if (next != NULL && current == NULL){ /* å¼€å§‹æ–°çš„ä½œä¸š */
 
 		printf("begin start new job\n");
 		current = next;
@@ -219,18 +219,18 @@ void jobswitch()
 		kill(current->job->pid,SIGCONT);
 		return;
 	}
-	else if (next != NULL && current != NULL){ /* ÇĞ»»×÷Òµ */
+	else if (next != NULL && current != NULL){ /* åˆ‡æ¢ä½œä¸š */
 
 		printf("switch to Pid: %d\n",next->job->pid);
 		kill(current->job->pid,SIGSTOP);
-		current->job->curpri = current->job->defpri;	//ÇĞ»»×÷Òµºó½«×÷ÒµµÄµ±Ç°ÓÅÏÈ¼¶µ÷½ÚÎª³õÊ¼Öµ
+		current->job->curpri = current->job->defpri;	//åˆ‡æ¢ä½œä¸šåå°†ä½œä¸šçš„å½“å‰ä¼˜å…ˆçº§è°ƒèŠ‚ä¸ºåˆå§‹å€¼
 		current->job->wait_time = 0;
 		current->job->state = READY;
 
-		/* ·Å»ØµÈ´ı¶ÓÁĞ */
+		/* æ”¾å›ç­‰å¾…é˜Ÿåˆ— */
 		if(head){
-			for(p = head; p->next != NULL; p = p->next);//ÕÒµ½¶ÓÎ²
-			p->next = current;							//½«µ±Ç°¹¤×÷¹ÒÆğµ½µÈ´ı¶ÓÁĞ
+			for(p = head; p->next != NULL; p = p->next);//æ‰¾åˆ°é˜Ÿå°¾
+			p->next = current;							//å°†å½“å‰å·¥ä½œæŒ‚èµ·åˆ°ç­‰å¾…é˜Ÿåˆ—
 			current->next = NULL;
 		}else{
 			head = current;
@@ -241,7 +241,7 @@ void jobswitch()
 		current->job->wait_time = 0;
 		kill(current->job->pid,SIGCONT);
 		return;
-	}else{ /* next == NULLÇÒcurrent != NULL£¬²»ÇĞ»» */   //bug£¬µÚÒ»¸ö³ÌĞò²»ÏÔÊ¾ÔËĞĞ
+	}else{ /* next == NULLä¸”current != NULLï¼Œä¸åˆ‡æ¢ */   //bugï¼Œç¬¬ä¸€ä¸ªç¨‹åºä¸æ˜¾ç¤ºè¿è¡Œ
 		if (flag){
 			kill(current->job->pid,SIGCONT);
 			flag--;
@@ -257,13 +257,13 @@ void sig_handler(int sig,siginfo_t *info,void *notused)
 	struct jobcmd tmpcmd;
 
 	switch (sig) {
-		case SIGVTALRM: /* µ½´ï¼ÆÊ±Æ÷ËùÉèÖÃµÄ¼ÆÊ±¼ä¸ô */
+		case SIGVTALRM: /* åˆ°è¾¾è®¡æ—¶å™¨æ‰€è®¾ç½®çš„è®¡æ—¶é—´éš” */
 			scheduler();
 			#ifdef DEBUG
 				printf("SIGVTALRM RECEIVED!\n");
 			#endif
 			return;
-		case SIGCHLD: /* ×Ó½ø³Ì½áÊøÊ±´«ËÍ¸ø¸¸½ø³ÌµÄĞÅºÅ */
+		case SIGCHLD: /* å­è¿›ç¨‹ç»“æŸæ—¶ä¼ é€ç»™çˆ¶è¿›ç¨‹çš„ä¿¡å· */
 			ret = waitpid(-1,&status,WNOHANG);
 			if (ret == 0)
 				return;
@@ -316,7 +316,7 @@ void do_enq(struct jobinfo *newjob,struct jobcmd enqcmd)
 
 	sigemptyset(&zeromask);
 
-	/* ·â×°jobinfoÊı¾İ½á¹¹ */
+	/* å°è£…jobinfoæ•°æ®ç»“æ„ */
 	newjob = (struct jobinfo *)malloc(sizeof(struct jobinfo));
 	newjob->jid = allocjid();
 	newjob->defpri = enqcmd.defpri;
@@ -351,26 +351,26 @@ void do_enq(struct jobinfo *newjob,struct jobcmd enqcmd)
 
 	#endif
 
-	/*ÏòµÈ´ı¶ÓÁĞÖĞÔö¼ÓĞÂµÄ×÷Òµ*/
+	/*å‘ç­‰å¾…é˜Ÿåˆ—ä¸­å¢åŠ æ–°çš„ä½œä¸š*/
 	newnode = (struct waitqueue*)malloc(sizeof(struct waitqueue));
 	newnode->next =NULL;
 	newnode->job=newjob;
 
 	if(head)
 	{
-		for(p=head;p->next != NULL; p=p->next);	//ÕÒ¶ÓÎ²
+		for(p=head;p->next != NULL; p=p->next);	//æ‰¾é˜Ÿå°¾
 		p->next =newnode;
 	}else
 		head=newnode;
 
-	/*Îª×÷Òµ´´½¨½ø³Ì*/
+	/*ä¸ºä½œä¸šåˆ›å»ºè¿›ç¨‹*/
 	if((pid=fork())<0)
 		error_sys("enq fork failed");
 
 	if(pid==0){
 		newjob->pid =getpid();
-		/*×èÈû×Ó½ø³Ì,µÈµÈÖ´ĞĞ*/
-		raise(SIGSTOP);	//raiseÏòµ±Ç°µÄ½ø³Ì·¢ËÍĞÅºÅ£¬SIGSTOPÎªÍ£Ö¹/×èÈû
+		/*é˜»å¡å­è¿›ç¨‹,ç­‰ç­‰æ‰§è¡Œ*/
+		raise(SIGSTOP);	//raiseå‘å½“å‰çš„è¿›ç¨‹å‘é€ä¿¡å·ï¼ŒSIGSTOPä¸ºåœæ­¢/é˜»å¡
 	#ifdef DEBUG
 
 			printf("begin running\n");
@@ -378,9 +378,9 @@ void do_enq(struct jobinfo *newjob,struct jobcmd enqcmd)
 				printf("arglist %s\n",arglist[i]);
 	#endif
 
-		/*¸´ÖÆÎÄ¼şÃèÊö·ûµ½±ê×¼Êä³ö*/
+		/*å¤åˆ¶æ–‡ä»¶æè¿°ç¬¦åˆ°æ ‡å‡†è¾“å‡º*/
 		dup2(globalfd,1);
-		/* Ö´ĞĞÃüÁî */
+		/* æ‰§è¡Œå‘½ä»¤ */
 		if(execv(arglist[0],arglist)<0)
 			printf("exec failed\n");
 		exit(1);
@@ -399,7 +399,7 @@ void do_deq(struct jobcmd deqcmd)
 		printf("deq jid %d\n",deqid);
 	#endif
 
-	/*current jodid==deqid,ÖÕÖ¹µ±Ç°×÷Òµ*/
+	/*current jodid==deqid,ç»ˆæ­¢å½“å‰ä½œä¸š*/
 	if (current && current->job->jid ==deqid){
 		printf("teminate current job\n");
 		kill(current->job->pid,SIGKILL);
@@ -412,7 +412,7 @@ void do_deq(struct jobcmd deqcmd)
 		free(current);
 		current=NULL;
 	}
-	else{ /* »òÕßÔÚµÈ´ı¶ÓÁĞÖĞ²éÕÒdeqid */
+	else{ /* æˆ–è€…åœ¨ç­‰å¾…é˜Ÿåˆ—ä¸­æŸ¥æ‰¾deqid */
 		select=NULL;
 		selectprev=NULL;
 		if(head){
@@ -444,17 +444,17 @@ void do_stat(struct jobcmd statcmd)
 	struct waitqueue *p;
 	char timebuf[BUFLEN];
 	/*
-	*´òÓ¡ËùÓĞ×÷ÒµµÄÍ³¼ÆĞÅÏ¢:
-	*1.×÷ÒµID
-	*2.½ø³ÌID
-	*3.×÷ÒµËùÓĞÕß
-	*4.×÷ÒµÔËĞĞÊ±¼ä
-	*5.×÷ÒµµÈ´ıÊ±¼ä
-	*6.×÷Òµ´´½¨Ê±¼ä
-	*7.×÷Òµ×´Ì¬
+	*æ‰“å°æ‰€æœ‰ä½œä¸šçš„ç»Ÿè®¡ä¿¡æ¯:
+	*1.ä½œä¸šID
+	*2.è¿›ç¨‹ID
+	*3.ä½œä¸šæ‰€æœ‰è€…
+	*4.ä½œä¸šè¿è¡Œæ—¶é—´
+	*5.ä½œä¸šç­‰å¾…æ—¶é—´
+	*6.ä½œä¸šåˆ›å»ºæ—¶é—´
+	*7.ä½œä¸šçŠ¶æ€
 	*/
 
-	/* ´òÓ¡ĞÅÏ¢Í·²¿ */
+	/* æ‰“å°ä¿¡æ¯å¤´éƒ¨ */
 	printf("JOBID\tPID\tOWNER\tRUNTIME\tWAITTIME\tCREATTIME\t\tSTATE\n");
 	if(current){
 		strcpy(timebuf,ctime(&(current->job->create_time)));
@@ -494,25 +494,25 @@ int main()
 	#endif
 
 	if(stat("/tmp/server",&statbuf)==0){
-		/* Èç¹ûFIFOÎÄ¼ş´æÔÚ,É¾µô */
+		/* å¦‚æœFIFOæ–‡ä»¶å­˜åœ¨,åˆ æ‰ */
 		if(remove("/tmp/server")<0)
 			error_sys("remove failed");
 	}
 
 	if(mkfifo("/tmp/server",0666)<0)
 		error_sys("mkfifo failed");
-	/* ÔÚ·Ç×èÈûÄ£Ê½ÏÂ´ò¿ªFIFO */
+	/* åœ¨éé˜»å¡æ¨¡å¼ä¸‹æ‰“å¼€FIFO */
 	if((fifo=open("/tmp/server",O_RDONLY|O_NONBLOCK))<0)
 		error_sys("open fifo failed");
 
-	/* ½¨Á¢ĞÅºÅ´¦Àíº¯Êı */
+	/* å»ºç«‹ä¿¡å·å¤„ç†å‡½æ•° */
 	newact.sa_sigaction=sig_handler;
 	sigemptyset(&newact.sa_mask);
 	newact.sa_flags=SA_SIGINFO;
 	sigaction(SIGCHLD,&newact,&oldact1);
 	sigaction(SIGVTALRM,&newact,&oldact2);
 
-	/* ÉèÖÃÊ±¼ä¼ä¸ôÎª1000ºÁÃë */
+	/* è®¾ç½®æ—¶é—´é—´éš”ä¸º1000æ¯«ç§’ */
 	interval.tv_sec=1;
 	interval.tv_usec=0;
 
