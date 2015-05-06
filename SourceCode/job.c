@@ -25,6 +25,7 @@ void scheduler()
 {
 	struct jobinfo *newjob=NULL;
 	struct jobcmd cmd;
+	char timebuf[BUFLEN];
 	int  count = 0;
 	bzero(&cmd,DATALEN);
 	if((count=read(fifo,&cmd,DATALEN))<0)
@@ -103,8 +104,21 @@ void scheduler()
 	#endif
 	/*作业切换前信息打印*/
 	#ifdef DEBUG
+		if(current)
+			strcpy(timebuf,ctime(&(current->job->create_time)));
+		timebuf[strlen(timebuf)-1]='\0';
 		printf("/---------- Before jobswitching ----------/\n");
 		do_stat(cmd);
+		if (next!=NULL){
+			printf("%d\t%d\t%d\t%d\t%d\t%s\t%s\n",
+				next->job->jid,
+				next->job->pid,
+				next->job->ownerid,
+				next->job->run_time,
+				next->job->wait_time,
+				timebuf,
+				"READY");
+		}
 	#endif
 	jobswitch();
 	/*作业切换后作业信息打印*/
