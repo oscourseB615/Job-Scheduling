@@ -30,6 +30,7 @@ void scheduler()
 	if((count=read(fifo,&cmd,DATALEN))<0)
 		error_sys("read fifo failed");
 
+	/*读取其他进程发来的信息*/
 	#ifdef DEBUG
 		printf("Reading whether other process send command!\n");
 		if(count){
@@ -40,15 +41,14 @@ void scheduler()
 	#endif
 
 	/* 更新等待队列中的作业 */
-
 	#ifdef DEBUG
 		printf("Update jobs in wait queue!\n");
 	#endif
+	updateall();
 
-	updateall(cmd);
 	switch(cmd.type){
 	case ENQ:
-
+		/*执行ENQ*/
 		#ifdef DEBUG
 			printf("Execute enq!\n");
 		#endif
@@ -56,7 +56,7 @@ void scheduler()
 		do_enq(newjob,cmd);
 		break;
 	case DEQ:
-
+		/*执行DEQ*/
 		#ifdef DEBUG
 			printf("Execute deq!\n");
 		#endif
@@ -64,7 +64,7 @@ void scheduler()
 		do_deq(cmd);
 		break;
 	case STAT:
-
+		/*执行STAT*/
 		#ifdef DEBUG
 			printf("Execute stat!\n");
 		#endif
@@ -75,12 +75,12 @@ void scheduler()
 		break;
 	}
 
+	/* 选择高优先级作业 */
 	#ifdef DEBUG
 		printf("Select which job to run next!\n");
 	#endif
-
-	/* 选择高优先级作业 */
 	next=jobselect();
+
 	/*打印执行jobselect选择的进程的信息打印*/
 	#ifdef DEBUG
 		if (next){
@@ -101,23 +101,34 @@ void scheduler()
 	#ifdef DEBUG
 		printf("Switch to the next job!\n");
 	#endif
+	/*作业切换前信息打印*/
+	#ifdef DEBUG
+		printf("/---------- Before jobswitching ----------/\n");
+		do_stat(cmd);
+	#endif
 	jobswitch();
+	/*作业切换后作业信息打印*/
+	#ifdef DEBUG
+		printf("/---------- After jobswitching ----------/\n");
+		do_stat(cmd);
+	#endif
 }
 
 /* 分配作业ID*/
 int allocjid()
 {
+
 	return ++jobid;
 }
 
-void updateall(struct jobcmd cmd)
+void updateall()
 {
-	#ifdef DEBUG
-		printf("Updateall starts\n");
-		do_stat(cmd);
-	#endif
-
 	struct waitqueue *p;
+	struct jobcmd tmpcmd;
+	#ifdef DEBUG
+		printf("/********** Updateall starts **********/\n");
+		do_stat(tmpcmd);
+	#endif
 
 	/* 更新作业运行时间 */
 	if(current)
@@ -133,8 +144,8 @@ void updateall(struct jobcmd cmd)
 	}
 
 	#ifdef DEBUG
-		printf("Updateall finished\n");
-		do_stat(cmd);
+		printf("/********** Updateall ends **********/\n");
+		do_stat(tmpcmd);
 	#endif
 }
 
@@ -153,15 +164,18 @@ struct waitqueue* jobselect()
 				selectprev = prev;
 				highest = p->job->curpri;
 			}
+		//if (select != selectprev)
 			selectprev->next = select->next;
-			if (select == selectprev)
-				head = NULL;
+		if (select == selectprev){
+			head = head->next;					//bug
+		}
 	}
 	return select;
 }
 
 void jobswitch()
 {
+
 	struct waitqueue *p;
 	int i;
 
@@ -180,7 +194,6 @@ void jobswitch()
 	}
 
 	if(next == NULL && current == NULL) /* 没有作业要运行 */
-
 		return;
 	else if (next != NULL && current == NULL){ /* 开始新的作业 */
 
@@ -195,14 +208,15 @@ void jobswitch()
 
 		printf("switch to Pid: %d\n",next->job->pid);
 		kill(current->job->pid,SIGSTOP);
-		current->job->curpri = current->job->defpri;
+		current->job->curpri = current->job->defpri;	//切换作业后将作业的当前优先级调节为初始值
 		current->job->wait_time = 0;
 		current->job->state = READY;
 
 		/* 放回等待队列 */
 		if(head){
-			for(p = head; p->next != NULL; p = p->next);
-			p->next = current;
+			for(p = head; p->next != NULL; p = p->next);//找到队尾
+			p->next = current;							//将当前工作挂起到等待队列
+			current->next = NULL;
 		}else{
 			head = current;
 		}
@@ -299,7 +313,7 @@ void do_enq(struct jobinfo *newjob,struct jobcmd enqcmd)
 
 	if(head)
 	{
-		for(p=head;p->next != NULL; p=p->next);
+		for(p=head;p->next != NULL; p=p->next);	//找队尾
 		p->next =newnode;
 	}else
 		head=newnode;
