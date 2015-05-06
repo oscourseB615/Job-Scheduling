@@ -81,6 +81,22 @@ void scheduler()
 
 	/* 选择高优先级作业 */
 	next=jobselect();
+	/*打印执行jobselect选择的进程的信息打印*/
+	#ifdef DEBUG
+		if (next){
+			printf("JOBID\tPID\tOWNER\tRUNTIME\tWAITTIME\tSTATE\n");
+			printf("%d\t%d\t%d\t%d\t%d\t\t%s\n",
+				next->job->jid,
+				next->job->pid,
+				next->job->ownerid,
+				next->job->run_time,
+				next->job->wait_time,
+				"READY");
+		}
+		else{
+			printf("Next is NULL\n");
+		}
+	#endif
 	/* 作业切换 */
 	#ifdef DEBUG
 		printf("Switch to the next job!\n");
@@ -88,7 +104,7 @@ void scheduler()
 	jobswitch();
 }
 
-	/* 分配作业ID*/
+/* 分配作业ID*/
 int allocjid()
 {
 	return ++jobid;
@@ -268,13 +284,13 @@ void do_enq(struct jobinfo *newjob,struct jobcmd enqcmd)
 
 	arglist[i] = NULL;
 
-#ifdef DEBUG
+	#ifdef DEBUG
 
-	printf("enqcmd argnum %d\n",enqcmd.argnum);
-	for(i = 0;i < enqcmd.argnum; i++)
-		printf("parse enqcmd:%s\n",arglist[i]);
+		printf("enqcmd argnum %d\n",enqcmd.argnum);
+		for(i = 0;i < enqcmd.argnum; i++)
+			printf("parse enqcmd:%s\n",arglist[i]);
 
-#endif
+	#endif
 
 	/*向等待队列中增加新的作业*/
 	newnode = (struct waitqueue*)malloc(sizeof(struct waitqueue));
@@ -296,12 +312,12 @@ void do_enq(struct jobinfo *newjob,struct jobcmd enqcmd)
 		newjob->pid =getpid();
 		/*阻塞子进程,等等执行*/
 		raise(SIGSTOP);
-#ifdef DEBUG
+	#ifdef DEBUG
 
-		printf("begin running\n");
-		for(i=0;arglist[i]!=NULL;i++)
-			printf("arglist %s\n",arglist[i]);
-#endif
+			printf("begin running\n");
+			for(i=0;arglist[i]!=NULL;i++)
+				printf("arglist %s\n",arglist[i]);
+	#endif
 
 		/*复制文件描述符到标准输出*/
 		dup2(globalfd,1);
@@ -320,9 +336,9 @@ void do_deq(struct jobcmd deqcmd)
 	struct waitqueue *p,*prev,*select,*selectprev;
 	deqid=atoi(deqcmd.data);
 
-#ifdef DEBUG
-	printf("deq jid %d\n",deqid);
-#endif
+	#ifdef DEBUG
+		printf("deq jid %d\n",deqid);
+	#endif
 
 	/*current jodid==deqid,终止当前作业*/
 	if (current && current->job->jid ==deqid){
