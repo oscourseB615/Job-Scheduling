@@ -249,6 +249,7 @@ void sig_handler(int sig,siginfo_t *info,void *notused)
 {
 	int status;
 	int ret;
+	struct jobcmd tmpcmd;
 
 	switch (sig) {
 		case SIGVTALRM: /* 到达计时器所设置的计时间隔 */
@@ -269,6 +270,8 @@ void sig_handler(int sig,siginfo_t *info,void *notused)
 			}else if (WIFSTOPPED(status)){
 				printf("child stopped, signal number = %d\n",WSTOPSIG(status));
 			}
+			printf("After child teminated\n");
+			do_stat(tmpcmd);
 			return;
 		default:
 			return;
