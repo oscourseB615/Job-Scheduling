@@ -7,7 +7,7 @@
 #include "job.h"
 #define DEBUG
 /* 
- * 命令语法格式
+ * 鍛戒护璇硶鏍煎紡
  *     enq [-p num] e_file args
  */
 
