@@ -14,8 +14,6 @@ void main()
      {
        printf("程序经过%d秒\n",count++);
        timer=timerc;
-       if (count > 9)
-         break;
      }
   }
   

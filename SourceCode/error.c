@@ -2,7 +2,7 @@
 #include <errno.h>
 #include "job.h"
 
-/* é”™è¯¯å¤„ç† */
+/* ´íÎó´¦Àí */
 void error_doit(int errnoflag,const char *fmt,va_list ap)
 {
   int errno_save;

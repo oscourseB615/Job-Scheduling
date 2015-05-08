@@ -8,7 +8,7 @@
 #define DEBUG
 
 /* 
- * 鍛戒护璇硶鏍煎紡
+ * 命令语法格式
  *     deq jid
  */
 void usage()
