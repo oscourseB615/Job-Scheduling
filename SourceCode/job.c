@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -62,8 +62,15 @@ void scheduler()
 		#ifdef DEBUG
 			printf("Execute enq!\n");
 		#endif
-
+		#ifdef DEBUG
+			printf("Job Status Before ENQ\n");
+			do_stat(cmd);
+		#endif
 		do_enq(newjob,cmd);
+		#ifdef DEBUG
+			printf("Job Status After ENQ\n");
+			do_stat(cmd);
+		#endif
 		enqflag++;
 		break;
 	case DEQ:
@@ -71,16 +78,30 @@ void scheduler()
 		#ifdef DEBUG
 			printf("Execute deq!\n");
 		#endif
-		
+		#ifdef DEBUG
+			printf("Job Status Before DEQ\n");
+			do_stat(cmd);
+		#endif
 		do_deq(cmd);
+		#ifdef DEBUG
+			printf("Job Status After DEQ\n");
+			do_stat(cmd);
+		#endif
 		break;
 	case STAT:
 		/*执行STAT*/
 		#ifdef DEBUG
 			printf("Execute stat!\n");
 		#endif
-		
+		#ifdef DEBUG
+			printf("Job Status Before STAT\n");
+			do_stat(cmd);
+		#endif
 		do_stat(cmd);
+		#ifdef DEBUG
+			printf("Job Status After STAT\n");
+			do_stat(cmd);
+		#endif
 		break;
 	default:
 		break;
