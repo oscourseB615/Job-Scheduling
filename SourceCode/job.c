@@ -11,8 +11,8 @@
 #include "job.h"
 
 #define DEBUG
-//#undef DEBUG
-//#define IMPSEGMT
+#undef DEBUG
+#define IMPSEGMT
 int jobid=0;
 int siginfo=1;
 int fifo;
@@ -183,7 +183,7 @@ int allocjid()
 
 void updateall()
 {
-	struct waitqueue *p;
+	struct waitqueue *p, *up, *pre;
 	struct jobcmd tmpcmd;
 	#ifdef DEBUG
 		printf("/********** Updateall starts **********/\n");
@@ -195,14 +195,65 @@ void updateall()
 		current->job->run_time += 1; /* 加1代表1000ms */
 
 	/* 更新作业等待时间及优先级 */	/*只更新当前任务所属的队列*/
-	for(p = head; p != NULL; p = p->next){
+	for(p = head_1; p != NULL; p = p->next){
 		p->job->wait_time += 1000;
 		if(p->job->wait_time >= 10000 && p->job->curpri < 3){	//每等待10s优先级+1
 			p->job->curpri++;							
 			p->job->wait_time = 0;
 		}
 	}
+	for(p = pre = head_2; p != NULL; pre = p, p = p->next){
+		p->job->wait_time += 1000;
+		if(p->job->wait_time >= 10000 && p->job->curpri < 3){	//每等待10s优先级+1
+			p->job->curpri++;							
+			p->job->wait_time = 0;
+		}
+		if (p->job->curpri == 3){
+			pre->next = p->next;
+			if (head_1){
+				for (up = head_1; up->next != NULL;up = up->next);
+				up->next = p;
+				p->next = NULL;
+			}
+			else{
+				head_1 = p;
+				p->next = NULL;
+			}
+		}
+	}
 
+	for(p = pre = head_3; p != NULL; pre = p, p = p->next){
+		p->job->wait_time += 1000;
+		if(p->job->wait_time >= 10000 && p->job->curpri < 3){	//每等待10s优先级+1
+			p->job->curpri++;							
+			p->job->wait_time = 0;
+		}
+		if (p->job->curpri == 3){
+			pre->next = p->next;
+			if (head_2){
+				for (up = head_2; up->next != NULL;up = up->next);
+				up->next = p;
+				p->next = NULL;
+			}
+			else{
+				head_2 = p;
+				p->next = NULL;
+			}
+		}
+	}
+	switch(head_id){
+		case 1:
+			head = head_1;
+			break;
+		case 2:
+			head = head_2;
+			break;
+		case 3:
+			head = head_3;
+			break;
+		default:
+			break;
+	}
 	#ifdef DEBUG
 		printf("/********** Updateall ends **********/\n");
 		do_stat(tmpcmd);
@@ -413,6 +464,10 @@ void jobswitch()
 			kill(current->job->pid,SIGCONT);
 			flag--;
 		}
+		/*
+			newjob->pid = pid;
+			wait(NULL);
+		*/
 		switch (head_id){
 			case 1:
 				oldhead = head;
