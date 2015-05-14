@@ -20,7 +20,7 @@
 	</br>
 ![调试2](https://raw.githubusercontent.com/oscourseB615/Job-Scheduling/master/images/Debug.2.png)
 
-	* 	任务3：调度程序scheduler()调试
+	* 	任务3：调度程序`scheduler()`调试
 	</br>
 ![调试3](https://raw.githubusercontent.com/oscourseB615/Job-Scheduling/master/images/Debug.3.png)
 
@@ -32,11 +32,11 @@
 	</br>
 ![调试5](https://raw.githubusercontent.com/oscourseB615/Job-Scheduling/master/images/Debug.5.png)
 
-	* 	任务6：updateall函数调试
+	* 	任务6：`updateall`函数调试
 	</br>
 ![调试6](https://raw.githubusercontent.com/oscourseB615/Job-Scheduling/master/images/Debug.6.png)
 
-	* 任务7：在job.c里，实现“显示ENQ，DEQ，STAT命令执行前后的队列里所有进程的相关信息”
+	* 任务7：在`job.c`里，实现“显示ENQ，DEQ，STAT命令执行前后的队列里所有进程的相关信息”
 		* ENQ：
 		</br>
 ![调试7.ENQ](https://raw.githubusercontent.com/oscourseB615/Job-Scheduling/master/images/Debug.7.ENQ.png)
@@ -49,11 +49,11 @@
 		</br>
 ![调试7.STAT](https://raw.githubusercontent.com/oscourseB615/Job-Scheduling/master/images/Debug.7.STAT.png)
 
-	* 	任务8：jobselect函数调试：在job.c里，实现“显示jobselect函数选择的进程的信息”
+	* 	任务8：jobselect函数调试：在`job.c`里，实现“显示`jobselect`函数选择的进程的信息”
 	</br>
 ![调试8](https://raw.githubusercontent.com/oscourseB615/Job-Scheduling/master/images/Debug.8.png)
 
-	* 任务9：jobswitch函数调试：在job.c里，实现“显示jobswitch执行前后的正在执行的进程和等待队列中的分别的情况”
+	* 任务9：`jobswitch`函数调试：在`job.c`里，实现“显示`jobswitch`执行前后的正在执行的进程和等待队列中的分别的情况”
 	</br>
 ![调试9](https://raw.githubusercontent.com/oscourseB615/Job-Scheduling/master/images/Debug.9.png)
 
